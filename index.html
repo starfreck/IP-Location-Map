@@ -46,14 +46,14 @@
     <button id="refresh">Refresh IP Location</button>
     <script>
         var map = L.map('map').setView([0, 0], 2);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
         }).addTo(map);
     
         var marker;
     
         function updateLocation() {
-            $.getJSON('https://api.ipify.org/?format=json', function(data) {
+            $.getJSON('http://api.ipify.org/?format=json', function(data) {
                 $.getJSON('http://ip-api.com/json/' + data.ip, function(locData) {
                     if(marker) {
                         map.removeLayer(marker);
