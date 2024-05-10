@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IP Location Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        #map {
+            height: 80vh;
+            margin: 3vh auto;
+            max-width: 860px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+        #refresh {
+            display: block;
+            width: 200px;
+            height: 40px;
+            margin: 10px auto;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #refresh:hover {
+            background-color: #45a049;
+        }
+        #info {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 10px;
+        }
+    </style>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div id="info"></div>
+    <div id="map"></div>
+    <button id="refresh">Refresh IP Location</button>
+    <script>
+        var map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+    
+        var marker;
+    
+        function updateLocation() {
+            $.getJSON('https://api.ipify.org/?format=json', function(data) {
+                $.getJSON('http://ip-api.com/json/' + data.ip, function(locData) {
+                    if(marker) {
+                        map.removeLayer(marker);
+                    }
+                    marker = L.marker([locData.lat, locData.lon]).addTo(map);
+                    map.setView([locData.lat, locData.lon], 13);
+                    
+                    document.getElementById('info').innerHTML = 'IP: ' + data.ip + ', City: ' + locData.city;
+                    console.log('IP: ' + data.ip + ', City: ' + locData.city);
+                });
+            });
+        }
+    
+        $('#refresh').click(updateLocation);
+    
+        updateLocation();
+    </script>
+</body>
+</html>
