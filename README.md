@@ -1,25 +1,19 @@
-# 🌍 **IP Location Map** 🌍
+# README
 
-## 📝 **Description**:
-    This project provides a simple web application that displays the geographical location of an IP address on a map 🗺️. It uses Leaflet.js for map rendering and the ip-api.com API for IP address geolocation 📍. Users can click the "Refresh IP Location" button to update the map with the current IP address location 🔄.
+## About
 
-## 🚀 **Live Demo:**
-Check out the live demo of the project [here](https://starfreck.github.io/IP-Location-Map/). Enjoy exploring the IP locations! 🌐📍
+This is the official Wails Vanilla template.
 
-## 🔧 **Installation**:
+You can configure the project by editing `wails.json`. More information about the project settings can be found
+here: https://wails.io/docs/reference/project-config
 
-    1️⃣ Clone the repository: git clone https://github.com/starfreck/IP-Location-Map.git
-    2️⃣ Open index.html in a web browser 🌐.
+## Live Development
 
-## 🎮 **Usage**:
+To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
+server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
+and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
+to this in your browser, and you can call your Go code from devtools.
 
-    1️⃣ Open index.html in a web browser 🌐.
-    2️⃣ Click the "Refresh IP Location" button to update the map with the current IP address location 🔄.
+## Building
 
-## 🏅 **Credits**:
-
-    Leaflet.js: https://leafletjs.com/ 🍃
-    ip-api.com: http://ip-api.com/ 🌐
-
-## 📜 **License**:
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details 📄.
+To build a redistributable, production mode package, use `wails build`.

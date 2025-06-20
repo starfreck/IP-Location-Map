@@ -1,0 +1,14 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "IP Location Map",
+  "assetdir": "frontend/dist",
+  "outputfilename": "IP Location Map",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Vasu",
+    "email": "15255654+starfreck@users.noreply.github.com"
+  }
+}

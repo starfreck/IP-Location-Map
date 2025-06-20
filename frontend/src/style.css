@@ -1,0 +1,174 @@
+:root {
+  --bg: #ffffff;
+  --text: #000000;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --primary: #4caf50;
+  --primary-hover: #43a047;
+}
+
+[data-theme="dark"] {
+  --bg: #121212;
+  --text: #ffffff;
+  --card-bg: rgba(30, 30, 30, 0.8);
+  --card-border: #333;
+  --primary: rgba(30, 30, 30, 0.8);
+  --primary-hover: #66bb6a;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+#overlay {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  pointer-events: none;
+}
+
+#info-card, #refresh {
+  pointer-events: auto;
+}
+
+#info-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 900px;
+  width: calc(100% - 2rem);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: center;
+}
+
+#info-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+#info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem 1rem;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+#info-grid div {
+  display: flex;
+  flex-direction: column;
+}
+
+#info-grid span:first-child {
+  font-weight: 600;
+  color: gray;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+#refresh {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  width: 200px;
+}
+
+#refresh:hover {
+  background-color: var(--primary-hover);
+}
+
+.leaflet-control-zoom,
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+#bottom-bar {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+#bottom-bar #refresh {
+  pointer-events: auto;
+}
+
+#info-grid a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+[data-theme="dark"] #info-grid a {
+  color: #4fc3f7; /* Light blue for dark mode */
+}
+
+/* Custom Leaflet popup theme */
+.leaflet-popup-content-wrapper {
+  background-color: rgba(30, 30, 30, 0.85) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border: none;
+}
+
+.leaflet-popup-content {
+  margin: 0.8rem 1rem;
+  color: white !important;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.leaflet-popup-tip {
+  background: rgba(30, 30, 30, 0.85) !important;
+  box-shadow: none !important;
+}
+
+.leaflet-popup-close-button {
+  color: white !important;
+  font-size: 1.2rem;
+  right: 6px;
+  top: 4px;
+}
+
