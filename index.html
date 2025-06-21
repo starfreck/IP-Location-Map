@@ -1,75 +1,294 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
     <title>IP Location Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        :root {
+            --bg: #ffffff;
+            --text: #000000;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --primary: #4caf50;
+            --primary-hover: #43a047;
+        }
+
+        [data-theme="dark"] {
+            --bg: #121212;
+            --text: #ffffff;
+            --card-bg: rgba(30, 30, 30, 0.8);
+            --card-border: #333;
+            --primary: rgba(30, 30, 30, 0.8);
+            --primary-hover: #66bb6a;
+        }
+
+        body, html {
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            height: 100%;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
         }
+
         #map {
-            height: 80vh;
-            margin: 3vh auto;
-            max-width: 860px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1;
         }
+
+        #overlay {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            pointer-events: none;
+        }
+
+        #info-card, #refresh {
+            pointer-events: auto;
+        }
+
+        #info-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            max-width: 900px;
+            width: calc(100% - 2rem);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        #info-card h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        #info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem 1rem;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+
+        #info-grid div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #info-grid span:first-child {
+            font-weight: 600;
+            color: gray;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
         #refresh {
-            display: block;
-            width: 200px;
-            height: 40px;
-            margin: 10px auto;
-            background-color: #4CAF50;
+            background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            border-radius: 0.5rem;
+            padding: 0.8rem 1.2rem;
             font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            width: 200px;
         }
+
         #refresh:hover {
-            background-color: #45a049;
+            background-color: var(--primary-hover);
         }
-        #info {
+
+        .leaflet-control-zoom,
+        .leaflet-control-attribution {
+            display: none !important;
+        }
+
+        #bottom-bar {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        #bottom-bar #refresh {
+            pointer-events: auto;
+        }
+
+        #info-grid a {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        [data-theme="dark"] #info-grid a {
+            color: #4fc3f7; /* Light blue for dark mode */
+        }
+
+        /* Custom Leaflet popup theme */
+        .leaflet-popup-content-wrapper {
+            background-color: rgba(30, 30, 30, 0.85) !important;
+            color: white !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            border: none;
+        }
+
+        .leaflet-popup-content {
+            margin: 0.8rem 1rem;
+            color: white !important;
+            font-size: 0.95rem;
             text-align: center;
-            font-size: 20px;
-            margin-top: 10px;
+        }
+
+        .leaflet-popup-tip {
+            background: rgba(30, 30, 30, 0.85) !important;
+            box-shadow: none !important;
+        }
+
+        .leaflet-popup-close-button {
+            color: white !important;
+            font-size: 1.2rem;
+            right: 6px;
+            top: 4px;
         }
     </style>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-    <div id="info"></div>
-    <div id="map"></div>
-    <button id="refresh">Refresh IP Location</button>
-    <script>
-        var map = L.map('map').setView([0, 0], 2);
-        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-        }).addTo(map);
-    
-        var marker;
-    
-        function updateLocation() {
-            $.getJSON('http://api.ipify.org/?format=json', function(data) {
-                $.getJSON('http://ip-api.com/json/' + data.ip, function(locData) {
-                    if(marker) {
-                        map.removeLayer(marker);
-                    }
-                    marker = L.marker([locData.lat, locData.lon]).addTo(map);
-                    map.setView([locData.lat, locData.lon], 13);
-                    
-                    document.getElementById('info').innerHTML = 'IP: ' + data.ip + ', City: ' + locData.city;
-                    console.log('IP: ' + data.ip + ', City: ' + locData.city);
-                });
+  <div id="app"></div>
+  <div id="map"></div>
+  <div id="bottom-bar">
+    <button id="refresh">
+      <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" fill="white">
+        <path d="M0 0h24v24H0z" fill="none"/>
+        <path d="M12 6V4l-4 4 4 4V8c2.76 0 5 2.24 5 5a5.002 5.002 0 01-9.9 1H5.08a7.002 7.002 0 0013.83-1c0-3.87-3.13-7-7-7z"/>
+      </svg>
+      Refresh Location
+    </button>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    let marker;
+
+    function setTheme() {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+    }
+
+    function updateInfoCard(data) {
+      const coordsLink = `https://maps.google.com/?q=${data.Lat},${data.Lon}`;
+      const infoGrid = document.getElementById("info-grid");
+      infoGrid.innerHTML = `
+        <div><span>IP Address</span>${data.IP}</div>
+        <div><span>City</span>${data.City}</div>
+        <div><span>Region</span>${data.Region}</div>
+        <div><span>Country</span>${data.Country}</div>
+        <div><span>Timezone</span>${data.Timezone}</div>
+        <div><span>ISP</span>${data.ISP}</div>
+        <div>
+          <span>Coordinates</span>
+          <a href="${coordsLink}" target="_blank">${data.Lat}, ${data.Lon}</a>
+        </div>
+      `;
+    }
+
+    function updateLocation() {
+      fetch('https://api.ipify.org/?format=json')
+        .then(response => response.json())
+        .then(ipData => {
+          fetch('https://go-web-proxy.onrender.com/json/' + ipData.ip)
+            .then(response => response.json())
+            .then(locData => {
+              const fullData = {
+                IP: ipData.ip,
+                City: locData.city,
+                Region: locData.regionName,
+                Country: locData.country,
+                Timezone: locData.timezone,
+                ISP: locData.isp,
+                Lat: locData.lat,
+                Lon: locData.lon
+              };
+
+              if (marker){
+                map.removeLayer(marker);
+              }
+
+              marker = L.marker([fullData.Lat, fullData.Lon])
+                .addTo(map)
+                .bindPopup(`${fullData.City}, ${fullData.Region}<br>${fullData.Country}<br>${fullData.IP}`)
+                .openPopup();
+
+              map.setView([fullData.Lat, fullData.Lon], 13);
+              updateInfoCard(fullData);
             });
-        }
-    
-        $('#refresh').click(updateLocation);
-    
-        updateLocation();
-    </script>
+        })
+        .catch(err => console.error("Error fetching IP/location data:", err));
+    }
+
+    // HTML injection
+    document.addEventListener("DOMContentLoaded", () => {
+      setTheme();
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", setTheme);
+
+      document.getElementById("app").innerHTML = `
+        <div id="overlay">
+          <div id="info-card">
+            <h2>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                   viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   class="lucide lucide-wifi-icon lucide-wifi">
+                <path d="M12 20h.01"/>
+                <path d="M2 8.82a15 15 0 0 1 20 0"/>
+                <path d="M5 12.859a10 10 0 0 1 14 0"/>
+                <path d="M8.5 16.429a5 5 0 0 1 7 0"/>
+              </svg>
+              Location Information
+            </h2>
+            <div id="info-grid">Loading...</div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("refresh").addEventListener("click", updateLocation);
+
+      map = L.map('map').setView([0, 0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+      }).addTo(map);
+
+      updateLocation();
+    });
+  </script>
 </body>
 </html>
